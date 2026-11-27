@@ -14,16 +14,16 @@ jobs:
 
       - name: Unzip project file
         run: |
-          ZIP_FILE=$(ls *.zip 2>/dev/null | head -n 1)
+          ZIP_FILE=$(find . -maxdepth 1 -type f -name "*.zip" ! -name "node_modules.zip" | head -n 1)
           if [ -n "$ZIP_FILE" ]; then
-            unzip -o "$ZIP_FILE"
+            unzip -o "$ZIP_FILE" -x "package.json" "package-lock.json" "*/package.json" "*/package-lock.json"
             rm -rf .aistudio
           fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -31,9 +31,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install dependencies & Build Web App
+      - name: Fix dependencies, install & build web app
         run: |
-          npm install
+          test -f package.json
+          node -e 'const fs = require("fs"); const p = JSON.parse(fs.readFileSync("package.json", "utf8")); p.devDependencies = p.devDependencies || {}; if (p.dependencies) delete p.dependencies.esbuild; p.devDependencies.esbuild = "^0.28.2"; fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");'
+          rm -f package-lock.json
+          rm -rf node_modules
+          echo "esbuild requested version:"
+          node -p "require('./package.json').devDependencies.esbuild"
+          npm install --no-audit --no-fund
+          npm ls esbuild vite
           npm run build
 
       - name: Convert to Android with Capacitor
