@@ -1,4 +1,4 @@
-
+```yaml
 name: Build Full Sociax SMS Forwarder APK
 
 on:
@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Extract SOCIAX project
         shell: bash
@@ -124,6 +124,11 @@ jobs:
 
           python3 - <<'PY'
           import xml.etree.ElementTree as ET
+
+          ET.register_namespace(
+              "android",
+              "http://schemas.android.com/apk/res/android"
+          )
 
           path = "android/app/src/main/AndroidManifest.xml"
           tree = ET.parse(path)
@@ -733,3 +738,4 @@ jobs:
           name: sociax-sms-forwarder-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+```
