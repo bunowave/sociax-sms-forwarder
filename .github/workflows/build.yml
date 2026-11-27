@@ -1,4 +1,3 @@
-```yaml
 name: Build Full Sociax SMS Forwarder APK
 
 on:
@@ -738,4 +737,3 @@ jobs:
           name: sociax-sms-forwarder-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-```
